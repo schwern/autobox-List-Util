@@ -49,9 +49,11 @@ sub minstr {
 sub reduce {
 	load List::Util;
 	my ($self, $coderef) = @_;
+	my $caller = caller;
 	return List::Util::reduce {
-		#FIXME: this needs to know the package we are exporting to
-		local ($main::a, $main::b) = ($a, $b);
+		no strict 'refs';
+		local(*{$caller.'::a'}) = \$a;
+		local(*{$caller.'::b'}) = \$b;
 		$coderef->();
 	} @$self
 }

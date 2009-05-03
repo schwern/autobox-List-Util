@@ -1,7 +1,7 @@
 use blib;
 use strict;
 use autobox::List::Util;
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 my $v = []->reduce(sub {});
 
@@ -68,12 +68,11 @@ is($v, 12, 'return from loop');
 
 
 # Does it work from another package?
-# FIXME: this doesn't work
-#{ 
-#	package Foo;
-#	$a = $b;
-#	::is([1..4]->reduce( sub {$a*$b} ), 24, 'other package');
-#}
+{
+	package Foo;
+
+	::is([1..4]->reduce( sub {$a*$b} ), 24, 'other package');
+}
 
 
 # Can we undefine a reduce sub while it's running?
@@ -89,7 +88,8 @@ sub self_updating { local $^W; *self_updating = sub{1} ;1 }
 eval { $v = [1,2]->reduce(\&self_updating) };
 is($@, '', 'redefine self');
 
-{ my $failed = 0;
+{
+    my $failed = 0;
 
     sub rec { my $n = shift;
         if (!defined($n)) {  # No arg means we're being called by reduce()
